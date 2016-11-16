@@ -9,16 +9,18 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    pdfboxVersion = '2.0.2'
+    pdfboxVersion = '2.0.3'
 }
 
 repositories {
-     mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
     compile "org.apache.pdfbox:pdfbox:${pdfboxVersion}"
     compile "org.apache.pdfbox:preflight:${pdfboxVersion}"
+    compile "org.bouncycastle:bcmail-jdk15on:1.55"
+
     compile "commons-io:commons-io:2.5"
 
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4"

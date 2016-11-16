@@ -93,15 +93,14 @@ class PdfImagesHelperSpec extends Specification {
         File outputDir = getTestDirectory("overlay")
 
         when:
-        PdfImagesHelper.Builder.createEmptyPdf()
-                .addPage()
-                .overlayImage(image, 1, 50, 50)
+        PdfImagesHelper.Builder.loadPdf(input)
+                .overlayImage(image, 2, 50, 50)
                 .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         File output = new File(outputDir, 'output.pdf')
         output.exists()
-        PDDocument.load(output).pages.size() == 1
+        PDDocument.load(output).pages.size() > 1
     }
 
     def "should replace a single paged pdf with an image"() {
@@ -115,10 +114,31 @@ class PdfImagesHelperSpec extends Specification {
                 .replaceWithImage(image, 1, 100, 100)
                 .writeTo(new File(outputDir, 'output.pdf'))
 
-        then:
+        then: 'Text page is replaced by image'
         File output = new File(outputDir, 'output.pdf')
         output.exists()
         PDDocument.load(output).pages.size() == 1
+    }
+
+    def "should add images to some pages"() {
+        given:
+        File input = getFileFromClassPath("sample.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory("replace")
+
+        when:
+        PdfImagesHelper.Builder.loadPdf(input)
+                .addPage()
+                .addPage()
+                .replaceWithImage(image, 2, 100, 100)
+                .addPage()
+                .replaceWithImage(image, 4, 100, 100)
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then: '1st page contains text, 2n and 4th an image, 3rd is blank'
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        PDDocument.load(output).pages.size() == 4
     }
 
     def "should fail if image does not fit in page"() {

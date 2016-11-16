@@ -1,6 +1,7 @@
 package org.abelsromero.pdfbox.api;
 
 import org.abelsromero.pdfbox.ex.PdfProcessingException;
+import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.multipdf.Overlay;
@@ -205,7 +206,8 @@ public class PdfImagesHelper {
     /**
      * Adds a fixed transparent layer with an image on top of the selected page.
      * <p>
-     * Note: Due to technical limitations, this operation has a relative impact in memory consumption.
+     * NOTE: Due to technical limitations, this operation has a relative impact in memory consumption.
+     * NOTE: using addPage disables this.
      *
      * @param image file to the image
      * @param page  page to insert, counting from 1
@@ -216,8 +218,6 @@ public class PdfImagesHelper {
 
         if (page <= 0) throw new IndexOutOfBoundsException("page must be greater or equal to 1");
 
-        PDPage pdPage = pdfDocument.getPage(page - 1);
-        PDRectangle pageArea = pdPage.getCropBox();
         // Load image only to assert size
         PDImageXObject ximage = null;
         try {
@@ -225,28 +225,44 @@ public class PdfImagesHelper {
         } catch (IOException e) {
             wrap(e);
         }
+        PDPage pdPage = pdfDocument.getPage(page - 1);
         assertPositionAndSize(x, y, ximage, pdPage);
 
         // Create temporal 1-page PDF in memory
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Builder.createEmptyPdf()
-                .addPage()
-                .replaceWithImage(image, page, x, y, scale)
-                .writeTo(os);
-        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+
+        // FIX ME only overlay on first page works.
+        // Need to try to generate a full pdf with empty pages to select a page
+        // Creating only previous pages does not work. Maybe add the rest of pages behing?
+        PdfImagesHelper ih = Builder.createEmptyPdf();
+        ih.addPage();
+        ih.replaceWithImage(image, 1, x, y, scale).writeTo(os);
+
+        // ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        File temp = null;
+        try {
+            temp = File.createTempFile("pdf-overlay-", ".pdf");
+            FileUtils.writeByteArrayToFile(temp, os.toByteArray());
+        } catch (IOException e) {
+            wrap(e);
+        }
 
         Map<Integer, String> overlayGuide = new HashMap<Integer, String>();
-        for (int i = 0; i < page; i++) {
-            overlayGuide.put(i, image.getAbsolutePath());
+        //overlayGuide.put(1, temp.getAbsolutePath());
+
+        for (int i = 0; i < pdfDocument.getNumberOfPages(); i++) {
+            overlayGuide.put(i, temp.getAbsolutePath());
             //watermark.pdf is the document which is a one page PDF with your watermark image in it.
             //Notice here, you can skip pages from being watermarked.
         }
+
         Overlay overlay = new Overlay();
         overlay.setInputPDF(pdfDocument);
-        overlay.setOverlayPosition(Overlay.Position.BACKGROUND);
+        overlay.setOverlayPosition(Overlay.Position.FOREGROUND);
         try {
-            overlay.setFirstPageOverlayPDF(PDDocument.load(is));
-//            overlay.overlay(overlayGuide);
+            overlay.setFirstPageOverlayFile(temp.getAbsolutePath());
+            // overlay method needs to ve invoked
+            overlay.overlay(new HashMap<Integer, String>());
         } catch (IOException e) {
             wrap(e);
         }
@@ -326,9 +342,14 @@ public class PdfImagesHelper {
         }
     }
 
+    /**
+     * Adds a black page to the PDF.
+     * <p>
+     * NOTE: using it disables overlayImage
+     */
     public PdfImagesHelper addPage() {
         PDPage page = new PDPage();
-        pdfDocument.addPage(page);
+        pdfDocument.getPages().add(page);
         return this;
     }
 
@@ -362,6 +383,10 @@ public class PdfImagesHelper {
             // don't bother explaining...because Java
             return null;
         }
+    }
+
+    public int getPagesCount() {
+        return pdfDocument.getNumberOfPages();
     }
 
 }
