@@ -192,29 +192,16 @@ public class PdfImagesHelper {
     /**
      * Adds a fixed transparent layer with an image on top of the selected page.
      * <p>
-     * Note: Due to technical limitations, this operation has a relative impact in memory consumption.
-     *
-     * @param image file to the image
-     * @param page  page to insert, counting from 1
-     * @param x     relative position from the lower left corner of the page
-     * @param y     relative position from the lower left corner of the page
-     */
-    public PdfImagesHelper overlayImage(final File image, final int page, final int x, final int y) {
-        return overlayImage(image, page, x, y, 1f);
-    }
-
-    /**
-     * Adds a fixed transparent layer with an image on top of the selected page.
-     * <p>
      * NOTE: Due to technical limitations, this operation has a relative impact in memory consumption.
      * NOTE: using addPage disables this.
      *
-     * @param image file to the image
-     * @param page  page to insert, counting from 1
-     * @param x     relative position from the lower left corner of the page
-     * @param y     relative position from the lower left corner of the page
+     * @param image     file to the image
+     * @param page      page to insert, counting from 1
+     * @param x         relative position from the lower left corner of the page
+     * @param y         relative position from the lower left corner of the page
+     * @param boxHeight height to scale the image to
      */
-    public PdfImagesHelper overlayImage(final File image, final int page, final int x, final int y, final float scale) {
+    public PdfImagesHelper overlayImage(final File image, final int page, final int x, final int y, final float boxHeight) {
 
         if (page <= 0) throw new IndexOutOfBoundsException("page must be greater or equal to 1");
 
@@ -230,6 +217,10 @@ public class PdfImagesHelper {
 
         // Create temporal 1-page PDF in memory
         ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        // Calculate scale factor
+        float imageHeight = ximage.getHeight();
+        float scale = boxHeight / imageHeight;
 
         // FIX ME only overlay on first page works.
         // Need to try to generate a full pdf with empty pages to select a page

@@ -103,6 +103,31 @@ class PdfImagesHelperSpec extends Specification {
         PDDocument.load(output).pages.size() > 1
     }
 
+    def "should overlay a Contract image to the second page"() {
+        given:
+        File input = getFileFromClassPath("CONTRATO.pdf")
+        File ruby = getFileFromClassPath("ruby-icon.png")
+        File gif = getFileFromClassPath("200w_s.gif")
+        File image = getFileFromClassPath("signature.jpg")
+        File outputDir = getTestDirectory("contrato")
+
+        when:
+        PdfImagesHelper.Builder.loadPdf(input)
+                .overlayImage(image, 1, 240, 107, 70)
+                .writeTo(new File(outputDir, 'CONTRATO-output-sign.pdf'))
+        PdfImagesHelper.Builder.loadPdf(input)
+                .overlayImage(ruby, 1, 240, 107, 70)
+                .writeTo(new File(outputDir, 'CONTRATO-output-ruby.pdf'))
+        PdfImagesHelper.Builder.loadPdf(input)
+                .overlayImage(gif, 1, 240, 107, 70)
+                .writeTo(new File(outputDir, 'CONTRATO-output-gif.pdf'))
+
+        then:
+        File output = new File(outputDir, 'CONTRATO-output.pdf')
+        output.exists()
+        PDDocument.load(output).pages.size() > 1
+    }
+
     def "should replace a single paged pdf with an image"() {
         given:
         File input = getFileFromClassPath("sample.pdf")
