@@ -1,0 +1,218 @@
+package org.abelsromero.pdfbox
+
+import org.abelsromero.pdfbox.api.PdfImagesHelper
+import org.abelsromero.pdfbox.ex.PdfProcessingException
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.common.PDRectangle
+import spock.lang.Specification
+
+import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath
+
+/**
+ * @author asalgadr
+ */
+class PdfImagesHelperSpec extends Specification {
+
+    private static final String OUTPUT_DIR = "build"
+
+    def "should create a blank pdf with a two pages"() {
+        given:
+        File outputDir = getTestDirectory()
+
+        when:
+        PdfImagesHelper.Builder.createEmptyPdf()
+                .addPage()
+                .addPage()
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        PDDocument.load(output).pages.size() == 2
+    }
+
+    def "should fail if input is not an image"() {
+        given:
+        File notAnImage = getFileFromClassPath('sample.pdf')
+        File outputDir = getTestDirectory()
+
+        when:
+        PdfImagesHelper.Builder.createEmptyPdf()
+                .addPage()
+                .overlayImage(notAnImage, 1, 50, 50)
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        // Unhandled exception. We don't care the exact type
+        thrown(Exception)
+    }
+
+    def "should stamp a PNG image to the first page in a single page pdf"() {
+        given:
+        File input = getFileFromClassPath("sample.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory("stamp")
+
+        when:
+        float x = PDRectangle.A4.width / 2f
+        float y = PDRectangle.A4.height / 2f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 1, x, y, "")
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        output.size() > input.size()
+        PDDocument.load(output).pages.size() == 1
+    }
+
+    def "should stamp a PNG image to the second page"() {
+        given:
+        File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory("stamp")
+
+        when:
+        float x = PDRectangle.A4.width / 2f
+        float y = PDRectangle.A4.height / 2f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 2, x, y, "")
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        output.size() > input.size()
+    }
+
+    def "should overlay a PNG image to the second page"() {
+        given:
+        File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory("overlay")
+
+        when:
+        PdfImagesHelper.Builder.createEmptyPdf()
+                .addPage()
+                .overlayImage(image, 1, 50, 50)
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        PDDocument.load(output).pages.size() == 1
+    }
+
+    def "should replace a single paged pdf with an image"() {
+        given:
+        File input = getFileFromClassPath("sample.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory("replace")
+
+        when:
+        PdfImagesHelper.Builder.loadPdf(input)
+                .replaceWithImage(image, 1, 100, 100)
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        File output = new File(outputDir, 'output.pdf')
+        output.exists()
+        PDDocument.load(output).pages.size() == 1
+    }
+
+    def "should fail if image does not fit in page"() {
+        given:
+        File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+
+        when:
+        float x = PDRectangle.A4.width - 10f
+        float y = PDRectangle.A4.height - 10f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 1, x, y, "")
+                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+
+        then:
+        thrown(PdfProcessingException)
+    }
+
+    def "should fail stamp if position is out of page - upper limit"() {
+        given:
+        File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+
+        when:
+        float x = PDRectangle.A4.width * 2
+        float y = PDRectangle.A4.height * 2
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 1, x, y, "")
+                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+
+        then:
+        thrown(PdfProcessingException)
+    }
+
+    def "should fail stamp if position is out of page - lower limit"() {
+        given:
+        File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+
+        when:
+        float x = -1f
+        float y = -1f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 1, x, y, "")
+                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+
+        then:
+        thrown(PdfProcessingException)
+    }
+
+    def "should fail if page is out of bounds - higher"() {
+        given:
+        File input = getFileFromClassPath("sample.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory()
+
+        when: 'index page is higher'
+        float x = PDRectangle.A4.width / 2f
+        float y = PDRectangle.A4.height / 2f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 2, x, y, "")
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        // Unhandled exception. We don't care the exact type
+        thrown(IndexOutOfBoundsException)
+    }
+
+    def "should fail if page is out of bounds - lower"() {
+        given:
+        File input = getFileFromClassPath("sample.pdf")
+        File image = getFileFromClassPath("ruby-icon.png")
+        File outputDir = getTestDirectory()
+
+        when: 'index page is higher'
+        float x = PDRectangle.A4.width / 2f
+        float y = PDRectangle.A4.height / 2f
+        PdfImagesHelper.Builder.loadPdf(input)
+                .stampImage(image, 0, x, y, "")
+                .writeTo(new File(outputDir, 'output.pdf'))
+
+        then:
+        // Unhandled exception. We don't care the exact type
+        thrown(IndexOutOfBoundsException)
+    }
+
+    /**
+     * Generates a unique directory in the build area.
+     */
+    private File getTestDirectory(String root = null) {
+        String timestamp = new Date().format('HHmmss-SSS')
+        def dir = new File("$OUTPUT_DIR/output-${root ? "$root-" : ''}$timestamp")
+        dir.mkdir()
+        return dir
+    }
+
+}
