@@ -1,0 +1,22 @@
+= PDFBox examples
+
+This repo contains personal examples and POCs related to manipulation of PDF documents using link:https://pdfbox.apache.org/[Apache PDFBox].
+For other examples I recommend checking the official SVN examples section https://svn.apache.org/repos/asf/pdfbox/trunk/examples/.
+
+== About this repository
+
+The aim of this this project is not to generate a wrapper or user friendly interfaces, so do not expect:
+
+* To be fully documented or tested.
+* To me maintained to the last Apache PDFBox version.
+* Overall, that package structure, naming, code style, etc. is consistent or makes any sense :P
+
+If you have questions or suggestions feel free to open an link:https://github.com/abelsromero/pdf-box-examples/issues[issue].
+I'd try to help the best I can and upgrade the repo if I see fit.
+
+== Structure
+
+Code is written as needs arise and structure is not 100% consistent, but the following rules apply.
+
+* `utils` packages contain utility components. Usually classes with static methods.
+* `api` packages contain components that have been designed more thoroughly to be used directly in third apps.
