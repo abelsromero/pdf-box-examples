@@ -12,8 +12,12 @@ import java.net.URISyntaxException;
  */
 public class LocalUtils {
 
-    public static File getFileFromClassPath(String path) throws URISyntaxException {
-        return new File(PdfSplitter.class.getClassLoader().getResource(path).toURI());
+    public static File getFileFromClassPath(String path) {
+        try {
+            return new File(PdfSplitter.class.getClassLoader().getResource(path).toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

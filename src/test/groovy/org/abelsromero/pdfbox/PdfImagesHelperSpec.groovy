@@ -2,6 +2,7 @@ package org.abelsromero.pdfbox
 
 import org.abelsromero.pdfbox.api.PdfImagesHelper
 import org.abelsromero.pdfbox.ex.PdfProcessingException
+import org.apache.commons.io.FilenameUtils
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.common.PDRectangle
 import spock.lang.Specification
@@ -21,9 +22,9 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.createEmptyPdf()
-                .addPage()
-                .addPage()
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .addPage()
+            .addPage()
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         File output = new File(outputDir, 'output.pdf')
@@ -38,9 +39,9 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.createEmptyPdf()
-                .addPage()
-                .overlayImage(notAnImage, 1, 50, 50)
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .addPage()
+            .overlayImage(notAnImage, 1, 50, 50)
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         // Unhandled exception. We don't care the exact type
@@ -57,8 +58,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width / 2f
         float y = PDRectangle.A4.height / 2f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 1, x, y, "")
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .stampImage(image, 1, x, y, "")
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         File output = new File(outputDir, 'output.pdf')
@@ -77,8 +78,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width / 2f
         float y = PDRectangle.A4.height / 2f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 2, x, y, "")
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .stampImage(image, 2, x, y, "")
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         File output = new File(outputDir, 'output.pdf')
@@ -94,8 +95,8 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-                .overlayImage(image, 2, 50, 50)
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .overlayImage(image, 2, 50, 50)
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         File output = new File(outputDir, 'output.pdf')
@@ -113,14 +114,33 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-                .overlayImage(image, 1, 240, 107, 70)
-                .writeTo(new File(outputDir, 'CONTRATO-output-sign.pdf'))
+            .overlayImage(image, 1, 240, 107, 70)
+            .writeTo(new File(outputDir, 'CONTRATO-output-sign.pdf'))
         PdfImagesHelper.Builder.loadPdf(input)
-                .overlayImage(ruby, 1, 240, 107, 70)
-                .writeTo(new File(outputDir, 'CONTRATO-output-ruby.pdf'))
+            .overlayImage(ruby, 1, 240, 107, 70)
+            .writeTo(new File(outputDir, 'CONTRATO-output-ruby.pdf'))
         PdfImagesHelper.Builder.loadPdf(input)
-                .overlayImage(gif, 1, 240, 107, 70)
-                .writeTo(new File(outputDir, 'CONTRATO-output-gif.pdf'))
+            .overlayImage(gif, 1, 240, 107, 70)
+            .writeTo(new File(outputDir, 'CONTRATO-output-gif.pdf'))
+        /**/
+        PdfImagesHelper.Builder.loadPdf(getFileFromClassPath('sample_eid.pdf'))
+            .overlayImage(getFileFromClassPath("arthur_samples/sample.gif"), 1, 240, 107, 70)
+            .writeTo(new File(outputDir, 'sample_eid-signed.pdf'))
+
+        /**
+         */
+        ['bmp', 'gif', 'jpg', 'png', 'tiff'].each { ext ->
+            def im = getFileFromClassPath("arthur_samples/sample.$ext")
+            try {
+                PdfImagesHelper.Builder.loadPdf(input)
+                    .overlayImage(im, 1, 240, 107, 70)
+                    .writeTo(new File(outputDir, "CONTRATO-output-ART-${ext}.pdf"))
+            } catch (e) {
+                println "FAILED; $im"
+            }
+        }
+
+
 
         then:
         File output = new File(outputDir, 'CONTRATO-output.pdf')
@@ -136,8 +156,8 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-                .replaceWithImage(image, 1, 100, 100)
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .replaceWithImage(image, 1, 100, 100)
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then: 'Text page is replaced by image'
         File output = new File(outputDir, 'output.pdf')
@@ -153,12 +173,12 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-                .addPage()
-                .addPage()
-                .replaceWithImage(image, 2, 100, 100)
-                .addPage()
-                .replaceWithImage(image, 4, 100, 100)
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .addPage()
+            .addPage()
+            .replaceWithImage(image, 2, 100, 100)
+            .addPage()
+            .replaceWithImage(image, 4, 100, 100)
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then: '1st page contains text, 2n and 4th an image, 3rd is blank'
         File output = new File(outputDir, 'output.pdf')
@@ -175,8 +195,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width - 10f
         float y = PDRectangle.A4.height - 10f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 1, x, y, "")
-                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .stampImage(image, 1, x, y, "")
+            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -191,8 +211,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width * 2
         float y = PDRectangle.A4.height * 2
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 1, x, y, "")
-                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .stampImage(image, 1, x, y, "")
+            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -207,8 +227,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = -1f
         float y = -1f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 1, x, y, "")
-                .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .stampImage(image, 1, x, y, "")
+            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -224,8 +244,8 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width / 2f
         float y = PDRectangle.A4.height / 2f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 2, x, y, "")
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .stampImage(image, 2, x, y, "")
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         // Unhandled exception. We don't care the exact type
@@ -242,12 +262,31 @@ class PdfImagesHelperSpec extends Specification {
         float x = PDRectangle.A4.width / 2f
         float y = PDRectangle.A4.height / 2f
         PdfImagesHelper.Builder.loadPdf(input)
-                .stampImage(image, 0, x, y, "")
-                .writeTo(new File(outputDir, 'output.pdf'))
+            .stampImage(image, 0, x, y, "")
+            .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
         // Unhandled exception. We don't care the exact type
         thrown(IndexOutOfBoundsException)
+    }
+
+    def "should extract all images"() {
+        given:
+        File input = getFileFromClassPath("document-with-images.pdf")
+        File outputDir = getTestDirectory()
+        File imagesDir = new File(outputDir, 'extracted-images')
+
+        when:
+        PdfImagesHelper helper = PdfImagesHelper.Builder.loadPdf(input);
+        def images = helper.writeImagesToDir(imagesDir, FilenameUtils.getName(input.getName()))
+
+        then:
+        imagesDir.listFiles().size() == 2
+        images.size() == 2
+        images[0].originalHeight == 104
+        images[0].originalWidth == 104
+        images[1].originalHeight == 630
+        images[1].originalWidth == 1200
     }
 
     /**

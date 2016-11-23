@@ -1,5 +1,6 @@
 package org.abelsromero.pdfbox.api;
 
+import org.abelsromero.pdfbox.api.internal.ImageExtractor;
 import org.abelsromero.pdfbox.ex.PdfProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.cos.COSDictionary;
@@ -305,6 +306,14 @@ public class PdfImagesHelper {
             wrap(e);
         }
         return this;
+    }
+
+    /**
+     * Writes all images to a directory following the pattern: basename-{pageNum}-{counter}.{extension}
+     */
+    public List<Image> writeImagesToDir(File path, String basename) {
+        ImageExtractor ie = new ImageExtractor(pdfDocument,path,basename);
+        return ie.process().getImages();
     }
 
     /**
