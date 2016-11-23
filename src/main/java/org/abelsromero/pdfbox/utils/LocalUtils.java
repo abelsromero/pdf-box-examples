@@ -3,6 +3,7 @@ package org.abelsromero.pdfbox.utils;
 import org.abelsromero.pdfbox.PdfSplitter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 
 /**

@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
@@ -18,12 +19,10 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationRubberStamp;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceDictionary;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceStream;
 
+import java.awt.image.RenderedImage;
 import java.io.*;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static org.abelsromero.pdfbox.ex.PdfProcessingException.wrap;
 
@@ -153,7 +152,7 @@ public class PdfImagesHelper {
 
         // Assert image fits
         if (x + image.getWidth() > pageArea.getUpperRightX() ||
-                y + image.getHeight() > pageArea.getUpperRightY())
+            y + image.getHeight() > pageArea.getUpperRightY())
             throw new PdfProcessingException("Image dos not fit in page");
     }
 
@@ -311,9 +310,36 @@ public class PdfImagesHelper {
     /**
      * Writes all images to a directory following the pattern: basename-{pageNum}-{counter}.{extension}
      */
-    public List<Image> writeImagesToDir(File path, String basename) {
-        ImageExtractor ie = new ImageExtractor(pdfDocument,path,basename);
+
+    public List<Image> writeImagesToDir(File path, String basename) throws IOException {
+
+        ImageExtractor ie = new ImageExtractor(pdfDocument, path, basename);
         return ie.process().getImages();
+    }
+
+    /**
+     * Returns the {@link RenderedImage} representing the images in the PDF
+     */
+    public List<RenderedImage> getRenderedImages() throws IOException {
+        List<RenderedImage> images = new ArrayList<>();
+        for (PDPage page : pdfDocument.getPages()) {
+            images.addAll(getImagesFromResources(page.getResources()));
+        }
+        return images;
+    }
+
+    private List<RenderedImage> getImagesFromResources(PDResources resources) throws IOException {
+
+        List<RenderedImage> images = new ArrayList<>();
+        for (COSName xObjectName : resources.getXObjectNames()) {
+            PDXObject xObject = resources.getXObject(xObjectName);
+            if (xObject instanceof PDImageXObject) {
+                images.add(((PDImageXObject) xObject).getImage());
+            } else if (xObject instanceof PDFormXObject) {
+                images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
+            }
+        }
+        return images;
     }
 
     /**

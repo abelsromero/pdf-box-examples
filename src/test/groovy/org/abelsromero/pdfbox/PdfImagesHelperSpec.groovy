@@ -5,6 +5,7 @@ import org.abelsromero.pdfbox.ex.PdfProcessingException
 import org.apache.commons.io.FilenameUtils
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.common.PDRectangle
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath
@@ -95,7 +96,7 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-            .overlayImage(image, 2, 50, 50)
+            .overlayImage(image, 2, 50, 50, 50)
             .writeTo(new File(outputDir, 'output.pdf'))
 
         then:
@@ -104,6 +105,7 @@ class PdfImagesHelperSpec extends Specification {
         PDDocument.load(output).pages.size() > 1
     }
 
+    @Ignore("internal test")
     def "should overlay a Contract image to the second page"() {
         given:
         File input = getFileFromClassPath("CONTRATO.pdf")
@@ -114,10 +116,10 @@ class PdfImagesHelperSpec extends Specification {
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
-            .overlayImage(image, 1, 240, 107, 70)
+            .overlayImage(image, 1, 240, 107, 70, 50)
             .writeTo(new File(outputDir, 'CONTRATO-output-sign.pdf'))
         PdfImagesHelper.Builder.loadPdf(input)
-            .overlayImage(ruby, 1, 240, 107, 70)
+            .overlayImage(ruby, 1, 240, 107, 70, 50)
             .writeTo(new File(outputDir, 'CONTRATO-output-ruby.pdf'))
         PdfImagesHelper.Builder.loadPdf(input)
             .overlayImage(gif, 1, 240, 107, 70)
@@ -270,7 +272,7 @@ class PdfImagesHelperSpec extends Specification {
         thrown(IndexOutOfBoundsException)
     }
 
-    def "should extract all images"() {
+    def "should write all images to an output directory"() {
         given:
         File input = getFileFromClassPath("document-with-images.pdf")
         File outputDir = getTestDirectory()
@@ -287,6 +289,20 @@ class PdfImagesHelperSpec extends Specification {
         images[0].originalWidth == 104
         images[1].originalHeight == 630
         images[1].originalWidth == 1200
+    }
+
+    def "should extract all images"() {
+        given:
+        File input = getFileFromClassPath("document-with-images.pdf")
+        File outputDir = getTestDirectory()
+        File imagesDir = new File(outputDir, 'extracted-images')
+
+        when:
+        PdfImagesHelper helper = PdfImagesHelper.Builder.loadPdf(input);
+        def images = helper.getRenderedImages()
+
+        then:
+        images.size() == 2
     }
 
     /**
