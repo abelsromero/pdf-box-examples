@@ -1,11 +1,15 @@
 package org.abelsromero.pdfbox;
 
+import org.abelsromero.pdfbox.api.streams.PagesCollector;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
@@ -44,13 +48,10 @@ public class PdfPageSelector {
                 throw new IllegalArgumentException(String.format("Invalid page index: %s", pageIndex));
         }
 
-        final PDDocument target = new PDDocument();
-        Arrays.stream(pages)
+        final PDDocument target = Arrays.stream(pages)
             .map(i -> i - 1)
             .mapToObj(document::getPage)
-            .forEach(target::addPage);
-
-        System.out.println(target.getNumberOfPages());
+            .collect(new PagesCollector());
 
         final File out = new File(targetDirectory, getBaseName(sourceFile.getName()) + "_out.pdf");
         target.save(out);
