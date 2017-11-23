@@ -9,17 +9,16 @@ import spock.lang.Ignore
 import spock.lang.Specification
 
 import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath
+import static org.abelsromero.pdfbox.TestUtils.createTestDirectory
 
 /**
  * @author asalgadr
  */
 class PdfImagesHelperSpec extends Specification {
 
-    private static final String OUTPUT_DIR = "build"
-
     def "should create a blank pdf with a two pages"() {
         given:
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
 
         when:
         PdfImagesHelper.Builder.createEmptyPdf()
@@ -36,7 +35,7 @@ class PdfImagesHelperSpec extends Specification {
     def "should fail if input is not an image"() {
         given:
         File notAnImage = getFileFromClassPath('sample.pdf')
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
 
         when:
         PdfImagesHelper.Builder.createEmptyPdf()
@@ -53,7 +52,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("sample.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory("stamp")
+        File outputDir = createTestDirectory("stamp")
 
         when:
         float x = PDRectangle.A4.width / 2f
@@ -73,7 +72,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory("stamp")
+        File outputDir = createTestDirectory("stamp")
 
         when:
         float x = PDRectangle.A4.width / 2f
@@ -92,7 +91,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("asciidoctor-example-manual.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory("overlay")
+        File outputDir = createTestDirectory("overlay")
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
@@ -112,7 +111,7 @@ class PdfImagesHelperSpec extends Specification {
         File ruby = getFileFromClassPath("ruby-icon.png")
         File gif = getFileFromClassPath("200w_s.gif")
         File image = getFileFromClassPath("signature.jpg")
-        File outputDir = getTestDirectory("contrato")
+        File outputDir = createTestDirectory("contrato")
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
@@ -154,7 +153,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("sample.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory("replace")
+        File outputDir = createTestDirectory("replace")
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
@@ -171,7 +170,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("sample.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory("replace")
+        File outputDir = createTestDirectory("replace")
 
         when:
         PdfImagesHelper.Builder.loadPdf(input)
@@ -198,7 +197,7 @@ class PdfImagesHelperSpec extends Specification {
         float y = PDRectangle.A4.height - 10f
         PdfImagesHelper.Builder.loadPdf(input)
             .stampImage(image, 1, x, y, "")
-            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .writeTo(new File(createTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -214,7 +213,7 @@ class PdfImagesHelperSpec extends Specification {
         float y = PDRectangle.A4.height * 2
         PdfImagesHelper.Builder.loadPdf(input)
             .stampImage(image, 1, x, y, "")
-            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .writeTo(new File(createTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -230,7 +229,7 @@ class PdfImagesHelperSpec extends Specification {
         float y = -1f
         PdfImagesHelper.Builder.loadPdf(input)
             .stampImage(image, 1, x, y, "")
-            .writeTo(new File(getTestDirectory("stamp"), 'output.pdf'))
+            .writeTo(new File(createTestDirectory("stamp"), 'output.pdf'))
 
         then:
         thrown(PdfProcessingException)
@@ -240,7 +239,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("sample.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
 
         when: 'index page is higher'
         float x = PDRectangle.A4.width / 2f
@@ -258,7 +257,7 @@ class PdfImagesHelperSpec extends Specification {
         given:
         File input = getFileFromClassPath("sample.pdf")
         File image = getFileFromClassPath("ruby-icon.png")
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
 
         when: 'index page is higher'
         float x = PDRectangle.A4.width / 2f
@@ -275,7 +274,7 @@ class PdfImagesHelperSpec extends Specification {
     def "should write all images to an output directory"() {
         given:
         File input = getFileFromClassPath("document-with-images.pdf")
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
         File imagesDir = new File(outputDir, 'extracted-images')
 
         when:
@@ -294,7 +293,7 @@ class PdfImagesHelperSpec extends Specification {
     def "should extract all images"() {
         given:
         File input = getFileFromClassPath("document-with-images.pdf")
-        File outputDir = getTestDirectory()
+        File outputDir = createTestDirectory()
         File imagesDir = new File(outputDir, 'extracted-images')
 
         when:
@@ -303,16 +302,6 @@ class PdfImagesHelperSpec extends Specification {
 
         then:
         images.size() == 2
-    }
-
-    /**
-     * Generates a unique directory in the build area.
-     */
-    private File getTestDirectory(String root = null) {
-        String timestamp = new Date().format('HHmmss-SSS')
-        def dir = new File("$OUTPUT_DIR/output-${root ? "$root-" : ''}$timestamp")
-        dir.mkdir()
-        return dir
     }
 
 }
