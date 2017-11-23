@@ -2,5 +2,5 @@
 /.idea
 /.gradle
 /build
-/src/main/resources/
+/src/test/resources/pdfa/
 /out
