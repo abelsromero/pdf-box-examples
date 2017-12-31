@@ -1,0 +1,45 @@
+= Document Title
+:toc:
+Doc Writer <doc@example.com>
+
+A sample http://asciidoc.org[AsciiDoc] document.
+
+== Introduction
+
+A paragraph followed by a simple list.
+
+* item 1
+* item 2
+
+Here's how you say "`Hello, World!`" in Ruby.
+
+.A basic Ruby application
+[source,ruby]
+----
+puts "Hello, World!"
+----
+
+TIP: asciidoctor-fopub takes the pain out of converting a DocBook file to a PDF file like this one.
+All you need is a Java Development Kit (JDK) and this project.
+The rest of the software is fetched and configured by Gradle.
+
+== Section 2
+
+bla bla bla
+
+== Section 3
+
+bla bla bla
+
+== Section 4
+
+bla bla bla
+
+:sectnums!:
+== Section 5
+
+bla bla bla
+
+== Section 6
+
+bla bla bla
