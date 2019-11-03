@@ -135,6 +135,7 @@ class PdfPageSelectorSpec extends Specification {
         PDDocument.load(outputFile).pages.size() == 1
     }
 
+    @Ignore("uses private document not present in the repo")
     def "should extract 3 page and keep PDFA nature"() {
         given:
         File pdf = getFileFromClassPath('pdfa/Webinar_PDFA.pdf')
