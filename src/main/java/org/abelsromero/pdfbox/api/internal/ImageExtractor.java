@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Processor to extract images from a PDF and get information about them.
  *
- * @author asalgadr on 22/11/2016.
+ * @author abelsromero on 22/11/2016.
  */
 public class ImageExtractor extends PDFStreamEngine {
 
@@ -44,7 +44,7 @@ public class ImageExtractor extends PDFStreamEngine {
 
 
     public ImageExtractor(PDDocument document, File output, String basename) {
-        images = new ArrayList<Image>();
+        images = new ArrayList<>();
         this.pdfDocument = document;
         this.output = output;
         this.basename = basename;

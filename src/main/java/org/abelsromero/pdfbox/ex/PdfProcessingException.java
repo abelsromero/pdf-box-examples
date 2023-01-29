@@ -3,7 +3,7 @@ package org.abelsromero.pdfbox.ex;
 /**
  * Unchecked exception used to wrap PDFBox checked ones.
  *
- * @author asalgadr on 15/11/2016.
+ * @author abelsromero on 15/11/2016.
  */
 public class PdfProcessingException extends RuntimeException {
 

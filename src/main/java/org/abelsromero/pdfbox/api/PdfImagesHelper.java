@@ -27,9 +27,9 @@ import java.util.*;
 import static org.abelsromero.pdfbox.ex.PdfProcessingException.wrap;
 
 /**
- * Provides the tools to add images to preexisting pdf
+ * Provides the tools to add images to preexisting PDF.
  *
- * @author asalgadr
+ * @author abelsromero
  */
 public class PdfImagesHelper {
 

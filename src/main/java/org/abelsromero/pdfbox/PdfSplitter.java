@@ -12,9 +12,9 @@ import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 /**
- * Created by ABEL.SALGADOROMERO on 16/02/2016.
- * <p>
  * Note: Splitter was located in package `org.apache.pdfbox.util` in PDFBox versions previous to 2.0.0
+ *
+ * @author abelsromero
  */
 public class PdfSplitter {
 
