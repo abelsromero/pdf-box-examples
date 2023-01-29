@@ -5,7 +5,6 @@ import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
-import sun.nio.ch.SelChImpl;
 
 import java.io.File;
 import java.io.IOException;

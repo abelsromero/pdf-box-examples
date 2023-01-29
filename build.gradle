@@ -1,32 +1,47 @@
-apply plugin: 'groovy'
+plugins {
+  id 'java'
+}
 
 group = 'org.abelsromero.pdfbox'
 version = '0.0.1-SNAPSHOT'
 
 description = """Apache PDFBox examples"""
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+//sourceCompatibility = 11
+//targetCompatibility = 11
 
 ext {
-  pdfboxVersion = '2.0.17'
+  pdfboxVersion = '2.0.27'
 }
 
 repositories {
   mavenCentral()
-  maven { url "http://maven.geotoolkit.org/" }
+//  maven { url "https://maven.geotoolkit.org/" }
 }
 
 dependencies {
-  compile "org.apache.pdfbox:pdfbox:${pdfboxVersion}"
-  compile "org.apache.pdfbox:preflight:${pdfboxVersion}"
-  compile "commons-io:commons-io:2.5"
-  compile 'javax.activation:activation:1.1.1'
+  implementation "org.apache.pdfbox:pdfbox:${pdfboxVersion}"
+  implementation "org.apache.pdfbox:preflight:${pdfboxVersion}"
+  implementation "commons-io:commons-io:2.5"
+  implementation 'javax.activation:activation:1.1.1'
   // Required for Tiff extraction. See: https://pdfbox.apache.org/2.0/dependencies.html
   // https://svn.apache.org/viewvc/pdfbox/trunk/parent/pom.xml?view=markup
-  compile 'com.github.jai-imageio:jai-imageio-core:1.3.1'
+  implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
 
-  testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
-  testCompile "org.codehaus.groovy:groovy-all:2.4.7"
+  testImplementation(platform('org.junit:junit-bom:5.9.2'))
+  testImplementation('org.junit.jupiter:junit-jupiter')
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
+
+//  testImplementation "org.spockframework:spock-core:1.0-groovy-2.4"
+//  testImplementation "org.codehaus.groovy:groovy-all:2.4.7"
 }
 
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(17))
+  }
+}
