@@ -6,13 +6,13 @@ import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
 
 /**
- * Created by ABEL.SALGADOROMERO on 02/03/2016.
+ * @author abelsromero
  */
 public class PdfAValidator {
 
     public static void main(String[] args) throws Exception {
 
-        ValidationResult result = null;
+        ValidationResult result;
 
         PreflightParser parser = new PreflightParser(args[0]);
         try {

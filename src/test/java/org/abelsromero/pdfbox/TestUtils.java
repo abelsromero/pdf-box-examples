@@ -10,7 +10,7 @@ class TestUtils {
 
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("HHmmss-SSS");
 
-    private static final String OUTPUT_DIR = "out";
+    private static final String OUTPUT_DIR = "build";
 
     public static File createTestDirectory() {
         return createTestDirectory(null);

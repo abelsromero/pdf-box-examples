@@ -17,9 +17,9 @@ import java.util.List;
 import static org.abelsromero.pdfbox.ex.PdfProcessingException.wrap;
 
 /**
- * Created by ABEL.SALGADOROMERO on 20/11/2017.
- * <p>
- * Allows to generate a PDF selecting some of the pages of another.
+ * Allows to generate a PDF selecting some pages of another.
+ *
+ * @author abelsromero
  */
 public class PdfPageSelector {
 

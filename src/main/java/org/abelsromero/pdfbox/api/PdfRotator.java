@@ -6,10 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.multipdf.Overlay;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
@@ -18,10 +15,13 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationRubberStamp;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceDictionary;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceStream;
+import org.apache.pdfbox.util.Matrix;
 
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.*;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.*;
 
 import static org.abelsromero.pdfbox.ex.PdfProcessingException.wrap;
@@ -31,7 +31,7 @@ import static org.abelsromero.pdfbox.ex.PdfProcessingException.wrap;
  *
  * @author abelsromero
  */
-public class PdfImagesHelper {
+public class PdfRotator {
 
     private static final String SAVE_GRAPHICS_STATE = "q\n";
     private static final String RESTORE_GRAPHICS_STATE = "Q\n";
@@ -46,14 +46,14 @@ public class PdfImagesHelper {
     /**
      * Private constructor to prevent instantiation
      */
-    private PdfImagesHelper() {
+    private PdfRotator() {
         pdfDocument = new PDDocument();
     }
 
     /**
      * Private constructor to prevent instantiation
      */
-    private PdfImagesHelper(InputStream pdf) {
+    private PdfRotator(InputStream pdf) {
         try {
             pdfDocument = PDDocument.load(pdf);
         } catch (IOException e) {
@@ -68,7 +68,7 @@ public class PdfImagesHelper {
      * @param y     vertical position from the lower left corner of the page
      * @param text  (Nullable) text to add to the image as a note
      */
-    public PdfImagesHelper stampImage(final File image, final int page, final float x, final float y, final String text) {
+    public PdfRotator stampImage(final File image, final int page, final float x, final float y, final String text) {
 
         if (page <= 0) throw new IndexOutOfBoundsException("page must be greater or equal to 1");
 
@@ -201,7 +201,7 @@ public class PdfImagesHelper {
      * @param y         relative position from the lower left corner of the page
      * @param boxHeight height to scale the image to
      */
-    public PdfImagesHelper overlayImage(final File image, final int page, final int x, final int y, final float boxHeight) {
+    public PdfRotator overlayImage(final File image, final int page, final int x, final int y, final float boxHeight) {
 
         if (page <= 0) throw new IndexOutOfBoundsException("page must be greater or equal to 1");
 
@@ -225,7 +225,7 @@ public class PdfImagesHelper {
         // FIX ME only overlay on first page works.
         // Need to try to generate a full pdf with empty pages to select a page
         // Creating only previous pages does not work. Maybe add the rest of pages behing?
-        PdfImagesHelper ih = Builder.createEmptyPdf();
+        PdfRotator ih = Builder.createEmptyPdf();
         ih.addPage();
         ih.replaceWithImage(image, 1, x, y, scale).writeTo(os);
 
@@ -268,7 +268,7 @@ public class PdfImagesHelper {
      * @param x     relative position from the lower left corner of the page
      * @param y     relative position from the lower left corner of the page
      */
-    public PdfImagesHelper replaceWithImage(final File image, final int page, final int x, final int y) {
+    public PdfRotator replaceWithImage(final File image, final int page, final int x, final int y) {
         return replaceWithImage(image, page, x, y, 1f);
     }
 
@@ -281,7 +281,7 @@ public class PdfImagesHelper {
      * @param y     relative position from the lower left corner of the page
      * @param scale scaling factor (1 = original size)
      */
-    public PdfImagesHelper replaceWithImage(final File image, final int page, final int x, final int y, final float scale) {
+    public PdfRotator replaceWithImage(final File image, final int page, final int x, final int y, final float scale) {
 
         if (page <= 0) throw new IndexOutOfBoundsException("page must be greater or equal to 1");
 
@@ -373,9 +373,28 @@ public class PdfImagesHelper {
      * <p>
      * NOTE: using it disables overlayImage
      */
-    public PdfImagesHelper addPage() {
+    public PdfRotator addPage() {
         PDPage page = new PDPage();
         pdfDocument.getPages().add(page);
+        return this;
+    }
+
+    public PdfRotator rotateRight() throws IOException {
+
+        PDPageTree pages = pdfDocument.getDocumentCatalog().getPages();
+        for (PDPage page : pages) {
+            PDPageContentStream cs = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.PREPEND, false, false);
+            Matrix matrix = Matrix.getRotateInstance(Math.toRadians(270), 0, 0);
+            cs.transform(matrix);
+
+            PDRectangle cropBox = page.getCropBox();
+            Rectangle rectangle = cropBox.transform(matrix).getBounds();
+            PDRectangle newBox = new PDRectangle((float) rectangle.getX(), (float) rectangle.getY(), (float) rectangle.getWidth(), (float) rectangle.getHeight());
+            page.setCropBox(newBox);
+            page.setMediaBox(newBox);
+            cs.close();
+        }
+
         return this;
     }
 
@@ -384,15 +403,15 @@ public class PdfImagesHelper {
         /**
          * Builder method to createEmptyPdf an empty PDF
          */
-        public static PdfImagesHelper createEmptyPdf() {
-            return new PdfImagesHelper();
+        public static PdfRotator createEmptyPdf() {
+            return new PdfRotator();
         }
 
         /**
          * Builder method
          */
-        public static PdfImagesHelper loadPdf(InputStream pdf) {
-            return new PdfImagesHelper(pdf);
+        public static PdfRotator loadPdf(InputStream pdf) {
+            return new PdfRotator(pdf);
         }
 
         /**
@@ -400,9 +419,9 @@ public class PdfImagesHelper {
          *
          * @param pdf PDF file
          */
-        public static PdfImagesHelper loadPdf(File pdf) {
+        public static PdfRotator loadPdf(File pdf) {
             try {
-                return new PdfImagesHelper(new FileInputStream(pdf));
+                return new PdfRotator(new FileInputStream(pdf));
             } catch (IOException e) {
                 wrap(e);
             }

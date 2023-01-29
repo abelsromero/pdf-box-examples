@@ -3,13 +3,12 @@ package org.abelsromero.pdfbox.utils;
 import org.abelsromero.pdfbox.PdfSplitter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 
 /**
- * Generic methods to manipulate files
- * <p>
- * Created by ABEL.SALGADOROMERO on 07/07/2016.
+ * Generic methods to manipulate files.
+ *
+ * @author abelsromero
  */
 public class LocalUtils {
 

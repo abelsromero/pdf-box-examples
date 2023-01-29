@@ -1,7 +1,5 @@
 package org.abelsromero.pdfbox.api;
 
-import java.io.InputStream;
-
 /**
  * Contains the information about an image found in a PDF
  *
@@ -40,7 +38,7 @@ public class Image {
         this.xPosition = xPosition;
     }
 
-   public float getYPosition() {
+    public float getYPosition() {
         return yPosition;
     }
 
