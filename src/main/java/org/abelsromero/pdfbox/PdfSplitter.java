@@ -5,11 +5,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.abelsromero.pdfbox.utils.LocalUtils.getFileFromClassPath;
-import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 /**
  * Note: Splitter was located in package `org.apache.pdfbox.util` in PDFBox versions previous to 2.0.0
@@ -20,8 +18,8 @@ public class PdfSplitter {
 
     public static final String SRC_FILE = "20160706092157753.pdf";
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        File source = getFileFromClassPath(SRC_FILE);
+    public static void main(String[] args) throws IOException {
+        final File source = getFileFromClassPath(SRC_FILE);
 
         PdfSplitter splitter = new PdfSplitter();
         splitter.processFile(source);
@@ -38,8 +36,7 @@ public class PdfSplitter {
         List<PDDocument> pages = splitter.split(document);
         for (int i = 0; i < pages.size(); i++) {
             PDDocument doc = pages.get(i);
-            doc.save(new File(targetDirectory, getBaseName(sourceFile.getName()) + "_" + i + ".pdf"));
+            doc.save(new File(targetDirectory, "%s-%s".formatted(sourceFile.getName(), i) + ".pdf"));
         }
     }
-
 }

@@ -2,7 +2,6 @@ package org.abelsromero.pdfbox.api;
 
 import org.abelsromero.pdfbox.api.internal.ImageExtractor;
 import org.abelsromero.pdfbox.ex.PdfProcessingException;
-import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.multipdf.Overlay;
@@ -21,6 +20,8 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceStream;
 
 import java.awt.image.RenderedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -229,11 +230,10 @@ public class PdfImagesHelper {
         ih.addPage();
         ih.replaceWithImage(image, 1, x, y, scale).writeTo(os);
 
-        // ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        File temp = null;
+        Path temp = null;
         try {
-            temp = File.createTempFile("pdf-overlay-", ".pdf");
-            FileUtils.writeByteArrayToFile(temp, os.toByteArray());
+            temp = Files.createTempFile("pdf-overlay-", ".pdf");
+            Files.write(temp, os.toByteArray());
         } catch (IOException e) {
             wrap(e);
         }
@@ -241,8 +241,9 @@ public class PdfImagesHelper {
         Map<Integer, String> overlayGuide = new HashMap<Integer, String>();
         //overlayGuide.put(1, temp.getAbsolutePath());
 
+        final String tempAbsolutePath = temp.toAbsolutePath().toString();
         for (int i = 0; i < pdfDocument.getNumberOfPages(); i++) {
-            overlayGuide.put(i, temp.getAbsolutePath());
+            overlayGuide.put(i, tempAbsolutePath);
             //watermark.pdf is the document which is a one page PDF with your watermark image in it.
             //Notice here, you can skip pages from being watermarked.
         }
@@ -251,9 +252,9 @@ public class PdfImagesHelper {
         overlay.setInputPDF(pdfDocument);
         overlay.setOverlayPosition(Overlay.Position.FOREGROUND);
         try {
-            overlay.setFirstPageOverlayFile(temp.getAbsolutePath());
+            overlay.setFirstPageOverlayFile(tempAbsolutePath);
             // overlay method needs to ve invoked
-            overlay.overlay(new HashMap<Integer, String>());
+            overlay.overlay(new HashMap<>());
         } catch (IOException e) {
             wrap(e);
         }

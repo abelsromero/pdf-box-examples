@@ -4,7 +4,6 @@ package org.abelsromero.pdfbox;
 import org.abelsromero.pdfbox.api.Image;
 import org.abelsromero.pdfbox.api.PdfImagesHelper;
 import org.abelsromero.pdfbox.ex.PdfProcessingException;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.junit.jupiter.api.Disabled;
@@ -278,7 +277,7 @@ public class PdfImagesHelperTest {
         File imagesDir = new File(outputDir, "extracted-images");
 
         PdfImagesHelper helper = PdfImagesHelper.Builder.loadPdf(input);
-        var images = helper.writeImagesToDir(imagesDir, FilenameUtils.getName(input.getName()));
+        var images = helper.writeImagesToDir(imagesDir, input.getName());
 
         assertThat(imagesDir.listFiles()).hasSize(2);
         assertThat(images).hasSize(2);
