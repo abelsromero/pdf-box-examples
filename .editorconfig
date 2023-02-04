@@ -8,5 +8,5 @@ trim_trailing_whitespace = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.gradle]
+[{*.gradle, *.yaml}]
 indent_size = 2
