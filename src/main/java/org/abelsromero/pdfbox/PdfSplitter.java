@@ -19,10 +19,17 @@ public class PdfSplitter {
     public static final String SRC_FILE = "20160706092157753.pdf";
 
     public static void main(String[] args) throws IOException {
-        final File source = getFileFromClassPath(SRC_FILE);
+        final File source = findFile(SRC_FILE);
 
-        PdfSplitter splitter = new PdfSplitter();
-        splitter.processFile(source);
+        new PdfSplitter()
+            .processFile(source);
+    }
+
+    private static File findFile(String path) {
+        final File candidate = new File(path);
+        if (candidate.exists())
+            return candidate;
+        return getFileFromClassPath(SRC_FILE);
     }
 
     public void processFile(File sourceFile) throws IOException {
