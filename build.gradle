@@ -8,7 +8,7 @@ version = '0.0.1-SNAPSHOT'
 description = """Apache PDFBox examples"""
 
 ext {
-  pdfboxVersion = '2.0.29'
+  pdfboxVersion = '3.0.0'
 }
 
 repositories {
