@@ -23,7 +23,7 @@ dependencies {
   // https://svn.apache.org/viewvc/pdfbox/trunk/parent/pom.xml?view=markup
   implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
 
-  testImplementation(platform('org.junit:junit-bom:5.10.0'))
+  testImplementation(platform('org.junit:junit-bom:5.10.2'))
   testImplementation('org.junit.jupiter:junit-jupiter')
   testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.25.3'
 }
