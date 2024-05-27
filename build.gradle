@@ -25,7 +25,7 @@ dependencies {
 
   testImplementation(platform('org.junit:junit-bom:5.10.0'))
   testImplementation('org.junit.jupiter:junit-jupiter')
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.25.3'
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.0'
 }
 
 tasks.named('test') {
